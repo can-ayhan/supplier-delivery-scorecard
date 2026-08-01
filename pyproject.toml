@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "supplier-delivery-scorecard"
+version = "0.1.0"
+description = "Supplier delivery scorecard built from SAP-style purchasing, receipt and inspection exports"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+scorecard = "scorecard.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
