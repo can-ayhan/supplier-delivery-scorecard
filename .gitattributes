@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# raw exports are kept byte for byte (CRLF, Windows-1252)
+data/raw/*.csv -text
+
+*.xlsx binary
+*.png binary
