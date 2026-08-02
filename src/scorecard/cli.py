@@ -18,6 +18,16 @@ def cmd_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_load(args: argparse.Namespace) -> int:
+    from scorecard.db import connect
+    from scorecard.load import load_exports
+
+    with connect() as conn:
+        for table, rows in load_exports(conn, args.raw).items():
+            print(f"{rows:>7,} rows  {table}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="scorecard", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -26,6 +36,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, default=RAW_DIR)
     p.add_argument("--seed", type=int, default=4217)
     p.set_defaults(func=cmd_generate)
+
+    p = sub.add_parser("load", help="land the exports in the staging schema")
+    p.add_argument("--raw", type=Path, default=RAW_DIR)
+    p.set_defaults(func=cmd_load)
 
     return parser
 

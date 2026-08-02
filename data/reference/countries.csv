@@ -1,0 +1,12 @@
+country_code,country_name,region
+PL,Poland,Domestic
+DE,Germany,EU
+AT,Austria,EU
+CZ,Czechia,EU
+SK,Slovakia,EU
+IT,Italy,EU
+ES,Spain,EU
+LT,Lithuania,EU
+TR,Turkey,Non-EU
+CN,China,Non-EU
+IN,India,Non-EU
