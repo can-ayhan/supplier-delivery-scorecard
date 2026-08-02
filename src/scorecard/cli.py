@@ -4,11 +4,29 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
+
+RAW_DIR = Path("data/raw")
+
+
+def cmd_generate(args: argparse.Namespace) -> int:
+    from scorecard.generate import generate
+
+    counts = generate(args.out, seed=args.seed)
+    for name, rows in counts.items():
+        print(f"{rows:>7,} rows  {args.out / name}")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="scorecard", description=__doc__)
-    parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("generate", help="write the three SAP-style exports")
+    p.add_argument("--out", type=Path, default=RAW_DIR)
+    p.add_argument("--seed", type=int, default=4217)
+    p.set_defaults(func=cmd_generate)
+
     return parser
 
 
