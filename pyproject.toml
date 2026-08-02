@@ -7,7 +7,9 @@ name = "supplier-delivery-scorecard"
 version = "0.1.0"
 description = "Supplier delivery scorecard built from SAP-style purchasing, receipt and inspection exports"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "psycopg[binary]>=3.2",
+]
 
 [project.scripts]
 scorecard = "scorecard.cli:main"

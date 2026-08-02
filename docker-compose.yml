@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scorecard-db
+    environment:
+      POSTGRES_USER: ${PGUSER:-scorecard}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-scorecard}
+      POSTGRES_DB: ${PGDATABASE:-scorecard}
+    ports:
+      # 5432 is usually taken by a local PostgreSQL install, so default to 5433
+      - "${PGPORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-scorecard} -d ${PGDATABASE:-scorecard}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
