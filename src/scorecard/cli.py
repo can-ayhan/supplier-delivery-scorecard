@@ -38,6 +38,26 @@ def cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_validate(args: argparse.Namespace) -> int:
+    from scorecard.db import connect
+    from scorecard.validate import export_issues, print_summary, summary
+
+    with connect() as conn:
+        print_summary(summary(conn))
+        if args.export:
+            count = export_issues(conn, args.export)
+            print(f"{count} findings written to {args.export}")
+    return 0
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    """Load, build and validate in one go."""
+    for step in (cmd_load, cmd_build, cmd_validate):
+        print(f"\n== {step.__name__.removeprefix('cmd_')} ==")
+        step(args)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="scorecard", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -53,6 +73,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("build", help="rebuild the typed staging tables")
     p.set_defaults(func=cmd_build)
+
+    p = sub.add_parser("validate", help="show what the data quality checks found")
+    p.add_argument("--export", type=Path, help="also write every finding to this CSV")
+    p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("run", help="load + build + validate")
+    p.add_argument("--raw", type=Path, default=RAW_DIR)
+    p.add_argument("--export", type=Path)
+    p.set_defaults(func=cmd_run)
 
     return parser
 

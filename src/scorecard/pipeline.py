@@ -8,6 +8,7 @@ from scorecard.db import run_sql_file
 
 BUILD_SCRIPTS = [
     "02_staging_clean.sql",
+    "03_validation.sql",
 ]
 
 
