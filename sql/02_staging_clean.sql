@@ -10,10 +10,12 @@ language plpgsql immutable as $$
 declare
     v text := btrim(coalesce(value, ''));
 begin
+    -- make_date, not to_date: to_date('00.00.0000', 'DD.MM.YYYY') does not fail,
+    -- it returns a date in the year 1 BC
     if v ~ '^\d{2}\.\d{2}\.\d{4}$' then
-        return to_date(v, 'DD.MM.YYYY');
+        return make_date(substr(v, 7, 4)::int, substr(v, 4, 2)::int, substr(v, 1, 2)::int);
     elsif v ~ '^\d{8}$' then
-        return to_date(v, 'YYYYMMDD');
+        return make_date(substr(v, 1, 4)::int, substr(v, 5, 2)::int, substr(v, 7, 2)::int);
     end if;
     return null;
 exception when others then
