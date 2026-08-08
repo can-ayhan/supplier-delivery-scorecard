@@ -11,6 +11,7 @@ BUILD_SCRIPTS = [
     "03_validation.sql",
     "04_star_schema.sql",
     "05_load_marts.sql",
+    "06_reporting_views.sql",
 ]
 
 MART_TABLES = [
