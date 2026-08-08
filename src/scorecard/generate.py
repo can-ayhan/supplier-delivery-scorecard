@@ -560,7 +560,12 @@ def _gr_key(row: dict) -> list[str]:
 def _plant_issues(rng: random.Random, po: list[dict], gr: list[dict], qa: list[dict],
                   materials: list[Material], planted: Planted) -> None:
     """Row level problems: the kind that come from how the files were exported and handled."""
-    clean_gr = [r for r in gr if r["BWART"] == "101"]
+    # Row level problems stay away from lines that already carry a quantity
+    # mismatch. Dropping the only receipt of an over-delivered line would turn
+    # it into "nothing received" and hide the problem it was meant to show.
+    taken = {tuple(key) for key in planted.over_delivery}
+    taken |= {(r["EBELN"], r["EBELP"]) for r in po if r["ELIKZ"] or r["LOEKZ"]}
+    clean_gr = [r for r in gr if r["BWART"] == "101" and (r["EBELN"], r["EBELP"]) not in taken]
 
     # receipts posted against purchase orders older than the PO export window
     for n in range(8):
