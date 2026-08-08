@@ -33,8 +33,8 @@ def cmd_build(args: argparse.Namespace) -> int:
     from scorecard.pipeline import build
 
     with connect() as conn:
-        build(conn)
-    print("staging rebuilt")
+        for table, rows in build(conn).items():
+            print(f"{rows:>7,} rows  mart.{table}")
     return 0
 
 
@@ -71,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--raw", type=Path, default=RAW_DIR)
     p.set_defaults(func=cmd_load)
 
-    p = sub.add_parser("build", help="rebuild the typed staging tables")
+    p = sub.add_parser("build", help="clean, validate and rebuild the star schema")
     p.set_defaults(func=cmd_build)
 
     p = sub.add_parser("validate", help="show what the data quality checks found")
