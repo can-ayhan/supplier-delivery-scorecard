@@ -67,7 +67,8 @@ order by p.plant_id;
 
 -- fact_po_line -------------------------------------------------------------
 -- A line is "in full" once net receipts reach the ordered quantity minus the
--- tolerance. Its delivery date is the posting that got it there.
+-- tolerance. Its delivery date is the posting that got it there, and stays
+-- there: a receipt that is reversed later does not count as completing it.
 
 insert into mart.fact_po_line (
     po_number, po_item, supplier_key, material_key, plant_key,
@@ -87,16 +88,25 @@ with lines as (
 ),
 movements as (
     select
-        g.po_number,
-        g.po_item,
-        g.posting_date,
-        g.quantity,
-        sum(g.quantity) over (
-            partition by g.po_number, g.po_item
-            order by g.posting_date, g.doc_number, g.doc_item
-        ) as running_qty
-    from staging.v_goods_receipts_valid g
-    where g.movement_type in ('101', '102')
+        po_number,
+        po_item,
+        posting_date,
+        quantity,
+        -- lowest the running total gets from this posting onwards
+        min(running_qty) over (
+            partition by po_number, po_item
+            order by posting_date desc, doc_number desc, doc_item desc
+        ) as lowest_running_qty_after
+    from (
+        select
+            g.*,
+            sum(g.quantity) over (
+                partition by g.po_number, g.po_item
+                order by g.posting_date, g.doc_number, g.doc_item
+            ) as running_qty
+        from staging.v_goods_receipts_valid g
+        where g.movement_type in ('101', '102')
+    ) g
 ),
 received as (
     select
@@ -105,7 +115,7 @@ received as (
         sum(m.quantity)                                                             as received_qty,
         count(*) filter (where m.quantity > 0)                                      as receipt_count,
         max(m.posting_date) filter (where m.quantity > 0)                           as last_receipt_date,
-        min(m.posting_date) filter (where m.running_qty >= l.full_qty)              as completion_date
+        min(m.posting_date) filter (where m.lowest_running_qty_after >= l.full_qty) as completion_date
     from lines l
     join movements m using (po_number, po_item)
     group by l.po_number, l.po_item

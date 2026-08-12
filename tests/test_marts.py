@@ -19,6 +19,7 @@ PO_LINES = {
     30: (100, DUE, "X", ""),
     40: (100, DUE, "", ""),
     50: (100, DUE, "", ""),
+    60: (100, DUE, "", ""),
     70: (100, "30.09.2026", "", ""),
     80: (100, DUE, "", ""),
     90: (100, DUE, "", "L"),
@@ -32,6 +33,9 @@ RECEIPTS = [
     (20, "15.06.2026", "101", "40,000"),
     (30, "10.06.2026", "101", "80,000"),       # on time but short, then closed
     (50, "10.06.2026", "101", "98,000"),       # within the 2 % tolerance
+    (60, "09.06.2026", "101", "1.000,000"),    # typo ...
+    (60, "11.06.2026", "102", "1.000,000-"),   # ... reversed ...
+    (60, "12.06.2026", "101", "100,000"),      # ... and posted again, now late
     (80, "20.06.2026", "101", "70,000"),       # late and short
     (100, "31.07.2026", "101", "10,000"),      # pins the as-of date to 31.07.2026
 ]
@@ -43,6 +47,7 @@ EXPECTED = {
     30: ("Short", True, False, False, 0),
     40: ("Not delivered", False, False, False, None),
     50: ("On time in full", True, True, True, 0),
+    60: ("Late", False, True, False, 2),
     70: ("Open", False, False, False, None),
     80: ("Late and short", False, False, False, 10),
     100: ("On time in full", True, True, True, 0),
@@ -99,15 +104,24 @@ def test_as_of_date_and_due_flag(scenario):
     assert not_due == [(70,)]
 
 
+def test_reversal_nets_out_of_received_quantity(scenario):
+    received, receipts = scenario.execute(
+        "select received_qty, receipt_count from mart.fact_po_line where po_item = 60"
+    ).fetchone()
+
+    assert received == 100
+    assert receipts == 2
+
+
 def test_scenario_scorecard(scenario):
     due, otif, on_time, in_full = scenario.execute(
         "select due_lines, otif_pct, on_time_pct, in_full_pct from mart.v_supplier_scorecard"
     ).fetchone()
 
-    assert due == 7                      # item 70 is not due, item 90 is cancelled
-    assert float(otif) == 3 / 7
-    assert float(on_time) == 4 / 7
-    assert float(in_full) == 4 / 7
+    assert due == 8                      # item 70 is not due, item 90 is cancelled
+    assert float(otif) == 3 / 8
+    assert float(on_time) == 4 / 8
+    assert float(in_full) == 5 / 8
 
 
 # consistency checks on the full data set ----------------------------------
