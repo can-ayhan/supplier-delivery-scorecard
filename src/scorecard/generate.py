@@ -362,13 +362,13 @@ def _receipts(rng: random.Random, lines: list[PoLine], planted: Planted) -> list
         full_qty = line.qty * (rng.uniform(0.985, 1.03) if bulk else 1.0)
 
         if in_full:
-            if rng.random() < 0.8:
+            if rng.random() < 0.9:
                 post(line, arrival, full_qty)
             else:  # split shipment, the second part can slip past the due date
                 first = round(full_qty * rng.uniform(0.4, 0.7) / line.material.step) * line.material.step
                 first = min(max(first, line.material.step), full_qty)
                 post(line, arrival, first)
-                post(line, arrival + timedelta(days=rng.randint(2, 9)), full_qty - first)
+                post(line, arrival + timedelta(days=rng.randint(1, 6)), full_qty - first)
         else:
             share = rng.uniform(0.55, 0.93)
             first = max(line.material.step, round(line.qty * share / line.material.step) * line.material.step)
@@ -429,13 +429,13 @@ def _inspection_lots(rng: random.Random, postings: list[Posting]) -> tuple[list[
             lots.append(Lot(p, p.posting, None, ""))
             continue
         roll = rng.random()
-        if roll < defect * 1.2:
+        if roll < defect * 0.8:
             lot = Lot(p, p.posting, decided, "R")
             if rng.random() < 0.7:
                 lot.returned = p.qty
             else:
                 lot.blocked = p.qty
-        elif roll < defect * 6.2:
+        elif roll < defect * 4.6:
             bad = round(p.qty * rng.uniform(0.02, 0.25), 0 if p.line.material.uom == "ST" else 3)
             bad = min(p.qty, max(1.0, bad))
             lot = Lot(p, p.posting, decided, "AB", accepted=p.qty - bad)
