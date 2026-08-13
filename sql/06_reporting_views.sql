@@ -49,7 +49,7 @@ left join mart.dim_date dl on dl.date_key = f.delivery_date_key;
 --
 --   delivery score   = OTIF %
 --   lead time score  = 100 when actual lead time equals the planned one,
---                      falling to 0 when it takes twice as long
+--                      falling to 0 at the ratio cap (25 % longer than planned)
 --   quality score    = 100 at zero defects, 0 at the defect rate cap
 --
 -- A component a supplier has no data for is left out and the remaining
@@ -113,7 +113,8 @@ scored as (
     select
         kpi.*,
         100 * kpi.otif_pct                                              as delivery_score,
-        100 * greatest(0, least(1, 2 - kpi.lead_time_ratio))            as lead_time_score,
+        100 * greatest(0, least(1, (k.lead_time_ratio_cap - kpi.lead_time_ratio)
+                                   / (k.lead_time_ratio_cap - 1)))      as lead_time_score,
         100 * greatest(0, 1 - kpi.defect_rate / k.defect_rate_cap)      as quality_score,
         k.weight_delivery, k.weight_lead_time, k.weight_quality
     from kpi
