@@ -19,6 +19,7 @@ create table mart.kpi_params (
     weight_quality           numeric not null default 0.30,
     lead_time_ratio_cap      numeric not null default 1.25,  -- actual / planned lead time at which the lead time score is zero
     defect_rate_cap          numeric not null default 0.05,  -- defect rate at which the quality score is zero
+    otif_target              numeric not null default 0.85,  -- target line in the reports
     as_of_date               date                            -- last posting date in the exports, set by the build
 );
 
