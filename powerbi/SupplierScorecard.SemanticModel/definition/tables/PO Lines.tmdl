@@ -1,0 +1,264 @@
+table 'PO Lines'
+	lineageTag: 7e168280-039b-5054-bf4d-208c3a4eab7d
+
+	column 'PO Line Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cdb5e9f0-433b-5263-a086-e7a85305998f
+		summarizeBy: none
+		sourceColumn: PO Line Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PO Number'
+		dataType: string
+		lineageTag: 2d806753-73e3-5f54-b9df-aef025090f15
+		summarizeBy: none
+		sourceColumn: PO Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PO Item'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7f614a3d-dd32-57ae-a77a-c0a8600cf3e5
+		summarizeBy: none
+		sourceColumn: PO Item
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e0db171e-854e-5734-809f-6dbb7f23fab3
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4e4fe9ea-b4c3-5d11-b607-90ce5750753a
+		summarizeBy: none
+		sourceColumn: Material Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plant Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e12cde87-38b6-56d3-960d-71cb99b327a4
+		summarizeBy: none
+		sourceColumn: Plant Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Order Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b803c393-7442-5d17-8e5f-8b8d43247242
+		summarizeBy: none
+		sourceColumn: Order Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Due Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 37f25492-b629-51b4-a1f3-32a41125db53
+		summarizeBy: none
+		sourceColumn: Due Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 57895f01-9314-5a1f-9334-b85fb84a56a2
+		summarizeBy: none
+		sourceColumn: Delivery Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column UoM
+		dataType: string
+		lineageTag: ba88ebd5-0557-517b-baf3-32d61fe59b1f
+		summarizeBy: none
+		sourceColumn: UoM
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ordered Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 7886f0aa-7569-5d11-9583-25b40333cf40
+		summarizeBy: none
+		sourceColumn: Ordered Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Received Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: d44e6b82-e172-50bf-9e01-824fd1f5a2ea
+		summarizeBy: none
+		sourceColumn: Received Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Returned Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 767c6539-8f04-561b-8370-83f04c3940be
+		summarizeBy: none
+		sourceColumn: Returned Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Order Value EUR'
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: 61335b13-d766-569c-b7db-8456d48ba92a
+		summarizeBy: none
+		sourceColumn: Order Value EUR
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Receipt Count'
+		dataType: int64
+		formatString: 0
+		lineageTag: 8be8534a-bb2a-5d27-9b0c-2e789894247b
+		summarizeBy: none
+		sourceColumn: Receipt Count
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Planned Lead Time Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a5b7259-9d3b-58fc-b880-344ef640fd3f
+		summarizeBy: none
+		sourceColumn: Planned Lead Time Days
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lead Time Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: 63742276-1202-5d52-b595-5e6668e6e80a
+		summarizeBy: none
+		sourceColumn: Lead Time Days
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days Late'
+		dataType: int64
+		formatString: 0
+		lineageTag: d49ad3e3-730d-5d32-9c5a-b3b9fb7b6a5b
+		summarizeBy: none
+		sourceColumn: Days Late
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Due'
+		dataType: boolean
+		lineageTag: cabba6dc-22e2-57ad-8b3c-7f935400dbbc
+		summarizeBy: none
+		sourceColumn: Is Due
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Closed by Buyer'
+		dataType: boolean
+		lineageTag: 8ff81091-15c0-5e99-9d06-65ad71ae1b7f
+		summarizeBy: none
+		sourceColumn: Closed by Buyer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is On Time'
+		dataType: boolean
+		lineageTag: 18afe0f2-35f5-570f-bee5-91afdbdf912c
+		summarizeBy: none
+		sourceColumn: Is On Time
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is In Full'
+		dataType: boolean
+		lineageTag: 7ef6b5d7-9b64-5f36-8589-4d717dc57104
+		summarizeBy: none
+		sourceColumn: Is In Full
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is OTIF'
+		dataType: boolean
+		lineageTag: bfa998e3-0d56-56a2-b9d2-307acf54257d
+		summarizeBy: none
+		sourceColumn: Is OTIF
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Status'
+		dataType: string
+		lineageTag: 786c09e8-7d7d-5f8b-b128-78ac2f75e950
+		summarizeBy: none
+		sourceColumn: Delivery Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lateness Bucket'
+		dataType: string
+		lineageTag: fb931b4b-a613-5268-a151-5183a2555934
+		summarizeBy: none
+		sourceColumn: Lateness Bucket
+		sortByColumn: 'Lateness Bucket Order'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lateness Bucket Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fb732d0f-b0d2-5771-9d1b-82c9a8b215de
+		summarizeBy: none
+		sourceColumn: Lateness Bucket Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'PO Lines' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "fact_po_line"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"po_line_key", "po_number", "po_item", "supplier_key", "material_key", "plant_key", "order_date_key", "due_date_key", "delivery_date_key", "uom", "ordered_qty", "received_qty", "returned_qty", "order_value_eur", "receipt_count", "planned_lead_time_days", "lead_time_days", "days_late", "is_due", "is_delivery_complete", "is_on_time", "is_in_full", "is_otif", "delivery_status"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"po_line_key", Int64.Type}, {"po_number", type text}, {"po_item", Int64.Type}, {"supplier_key", Int64.Type}, {"material_key", Int64.Type}, {"plant_key", Int64.Type}, {"order_date_key", Int64.Type}, {"due_date_key", Int64.Type}, {"delivery_date_key", Int64.Type}, {"uom", type text}, {"ordered_qty", type number}, {"received_qty", type number}, {"returned_qty", type number}, {"order_value_eur", Currency.Type}, {"receipt_count", Int64.Type}, {"planned_lead_time_days", Int64.Type}, {"lead_time_days", Int64.Type}, {"days_late", Int64.Type}, {"is_due", type logical}, {"is_delivery_complete", type logical}, {"is_on_time", type logical}, {"is_in_full", type logical}, {"is_otif", type logical}, {"delivery_status", type text}}),
+				    #"Added Lateness Bucket" = Table.AddColumn(#"Changed Type", "Lateness Bucket", each
+				        if [days_late] = null then "Not delivered"
+				        else if [days_late] <= 0 then "On time or early"
+				        else if [days_late] <= 3 then "1-3 days late"
+				        else if [days_late] <= 7 then "4-7 days late"
+				        else if [days_late] <= 14 then "8-14 days late"
+				        else "15+ days late", type text),
+				    #"Added Bucket Order" = Table.AddColumn(#"Added Lateness Bucket", "Lateness Bucket Order", each
+				        if [days_late] = null then 6
+				        else if [days_late] <= 0 then 1
+				        else if [days_late] <= 3 then 2
+				        else if [days_late] <= 7 then 3
+				        else if [days_late] <= 14 then 4
+				        else 5, Int64.Type),
+				    #"Renamed Columns" = Table.RenameColumns(#"Added Bucket Order", {{"po_line_key", "PO Line Key"}, {"po_number", "PO Number"}, {"po_item", "PO Item"}, {"supplier_key", "Supplier Key"}, {"material_key", "Material Key"}, {"plant_key", "Plant Key"}, {"order_date_key", "Order Date Key"}, {"due_date_key", "Due Date Key"}, {"delivery_date_key", "Delivery Date Key"}, {"uom", "UoM"}, {"ordered_qty", "Ordered Qty"}, {"received_qty", "Received Qty"}, {"returned_qty", "Returned Qty"}, {"order_value_eur", "Order Value EUR"}, {"receipt_count", "Receipt Count"}, {"planned_lead_time_days", "Planned Lead Time Days"}, {"lead_time_days", "Lead Time Days"}, {"days_late", "Days Late"}, {"is_due", "Is Due"}, {"is_delivery_complete", "Closed by Buyer"}, {"is_on_time", "Is On Time"}, {"is_in_full", "Is In Full"}, {"is_otif", "Is OTIF"}, {"delivery_status", "Delivery Status"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,66 @@
+table Supplier
+	lineageTag: ad51b043-2998-53cc-bef7-58fca759ccf6
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 51f9f261-ed82-524a-841f-0770b8f07106
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier ID'
+		dataType: string
+		lineageTag: 7f4babca-a52b-580c-9363-85b3af2511e9
+		summarizeBy: none
+		sourceColumn: Supplier ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Supplier
+		dataType: string
+		lineageTag: c4d20cdd-0b74-53c3-b5c6-84cd64956a5f
+		summarizeBy: none
+		sourceColumn: Supplier
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Country Code'
+		dataType: string
+		lineageTag: 86a7e8b0-9799-52c6-9677-87dbebe542dd
+		summarizeBy: none
+		sourceColumn: Country Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 5b656289-026f-5641-ad16-8eed42d5a824
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 4fd36a91-1534-5a3c-9c8b-f450133aa351
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Supplier = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "dim_supplier"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"supplier_key", "supplier_id", "supplier_name", "country_code", "country_name", "region"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"supplier_key", Int64.Type}, {"supplier_id", type text}, {"supplier_name", type text}, {"country_code", type text}, {"country_name", type text}, {"region", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"supplier_key", "Supplier Key"}, {"supplier_id", "Supplier ID"}, {"supplier_name", "Supplier"}, {"country_code", "Country Code"}, {"country_name", "Country"}, {"region", "Region"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

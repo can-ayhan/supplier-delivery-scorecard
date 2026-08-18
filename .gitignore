@@ -13,3 +13,7 @@ __pycache__/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Power BI Desktop local state
+**/.pbi/localSettings.json
+**/.pbi/cache.abf

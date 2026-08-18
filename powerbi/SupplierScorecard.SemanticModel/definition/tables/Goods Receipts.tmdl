@@ -1,0 +1,135 @@
+table 'Goods Receipts'
+	lineageTag: f6a2cf78-d3ef-5385-a9b2-e359b351fa5f
+
+	column 'Receipt Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 494f3a5b-2aa3-5fb8-9b52-d57b5d1196b9
+		summarizeBy: none
+		sourceColumn: Receipt Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PO Line Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fd8de9ee-d96f-57bb-a4bc-e6382e1d00a3
+		summarizeBy: none
+		sourceColumn: PO Line Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 47361413-627b-530d-9412-e68c38216eab
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ca6c5b3d-3890-580f-ba1b-be6314f4b8cb
+		summarizeBy: none
+		sourceColumn: Material Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plant Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 49245eae-efe1-5dce-bcd2-5b0c58c2111b
+		summarizeBy: none
+		sourceColumn: Plant Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Posting Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 25a51842-00c0-5384-9492-1cc460bd968f
+		summarizeBy: none
+		sourceColumn: Posting Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Doc'
+		dataType: string
+		lineageTag: 29b698f9-311a-5e3b-be03-61ac6ffe60ef
+		summarizeBy: none
+		sourceColumn: Material Doc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Doc Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6afeb19e-fcf5-5d22-b75f-d60ff042f607
+		summarizeBy: none
+		sourceColumn: Doc Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Doc Item'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6a5abc99-13bb-56cd-a9d1-66472e94e2e0
+		summarizeBy: none
+		sourceColumn: Doc Item
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Movement Type'
+		dataType: string
+		lineageTag: 68e04cb6-a1e1-5410-9e90-9c5fd67b87cc
+		summarizeBy: none
+		sourceColumn: Movement Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Movement
+		dataType: string
+		lineageTag: 4d5fa74d-a94c-5e81-a101-59c53e944157
+		summarizeBy: none
+		sourceColumn: Movement
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 623d9847-6d92-5c88-a7ae-597bc879014e
+		summarizeBy: none
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'After Due Date'
+		dataType: boolean
+		lineageTag: fb57f9d1-85f4-501a-aa57-351079c61b27
+		summarizeBy: none
+		sourceColumn: After Due Date
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Goods Receipts' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "fact_goods_receipt"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"receipt_key", "po_line_key", "supplier_key", "material_key", "plant_key", "posting_date_key", "doc_number", "doc_year", "doc_item", "movement_type", "movement", "quantity", "is_after_due_date"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"receipt_key", Int64.Type}, {"po_line_key", Int64.Type}, {"supplier_key", Int64.Type}, {"material_key", Int64.Type}, {"plant_key", Int64.Type}, {"posting_date_key", Int64.Type}, {"doc_number", type text}, {"doc_year", Int64.Type}, {"doc_item", Int64.Type}, {"movement_type", type text}, {"movement", type text}, {"quantity", type number}, {"is_after_due_date", type logical}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"receipt_key", "Receipt Key"}, {"po_line_key", "PO Line Key"}, {"supplier_key", "Supplier Key"}, {"material_key", "Material Key"}, {"plant_key", "Plant Key"}, {"posting_date_key", "Posting Date Key"}, {"doc_number", "Material Doc"}, {"doc_year", "Doc Year"}, {"doc_item", "Doc Item"}, {"movement_type", "Movement Type"}, {"movement", "Movement"}, {"quantity", "Quantity"}, {"is_after_due_date", "After Due Date"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

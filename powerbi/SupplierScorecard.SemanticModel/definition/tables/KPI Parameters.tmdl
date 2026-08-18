@@ -1,0 +1,93 @@
+table 'KPI Parameters'
+	isHidden
+	lineageTag: 703aa714-9fb5-5a65-baa3-fd273fb27e79
+
+	column 'In Full Tolerance'
+		dataType: double
+		lineageTag: 392e0989-3332-51f9-aa63-ff9f5daf7b7e
+		summarizeBy: none
+		sourceColumn: In Full Tolerance
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'On Time Grace Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: a5a33a25-32dd-5e4a-8720-85faf581cf9d
+		summarizeBy: none
+		sourceColumn: On Time Grace Days
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Weight Delivery'
+		dataType: double
+		lineageTag: 6c8977d2-7a5f-556f-ba19-b3740499e38a
+		summarizeBy: none
+		sourceColumn: Weight Delivery
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Weight Lead Time'
+		dataType: double
+		lineageTag: 5281e3ac-066e-5575-9013-36e63dd88cb5
+		summarizeBy: none
+		sourceColumn: Weight Lead Time
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Weight Quality'
+		dataType: double
+		lineageTag: 31ca7e5c-5af5-5d9d-ad1c-97487bf4b724
+		summarizeBy: none
+		sourceColumn: Weight Quality
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lead Time Ratio Cap'
+		dataType: double
+		lineageTag: 1f67bc2f-1da8-5d57-ad34-0d55873b7f65
+		summarizeBy: none
+		sourceColumn: Lead Time Ratio Cap
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Defect Rate Cap'
+		dataType: double
+		lineageTag: 206f54f3-5c86-57b5-a002-5ca0ed72a33f
+		summarizeBy: none
+		sourceColumn: Defect Rate Cap
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'OTIF Target'
+		dataType: double
+		lineageTag: dbcc13e3-7a46-5d12-98da-0e9ea2b1c931
+		summarizeBy: none
+		sourceColumn: OTIF Target
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'As Of Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3c43cfc5-b169-5a61-aaf1-0e58b1903bfb
+		summarizeBy: none
+		sourceColumn: As Of Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'KPI Parameters' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "kpi_params"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"in_full_tolerance", "on_time_grace_days", "weight_delivery", "weight_lead_time", "weight_quality", "lead_time_ratio_cap", "defect_rate_cap", "otif_target", "as_of_date"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"in_full_tolerance", type number}, {"on_time_grace_days", Int64.Type}, {"weight_delivery", type number}, {"weight_lead_time", type number}, {"weight_quality", type number}, {"lead_time_ratio_cap", type number}, {"defect_rate_cap", type number}, {"otif_target", type number}, {"as_of_date", type date}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"in_full_tolerance", "In Full Tolerance"}, {"on_time_grace_days", "On Time Grace Days"}, {"weight_delivery", "Weight Delivery"}, {"weight_lead_time", "Weight Lead Time"}, {"weight_quality", "Weight Quality"}, {"lead_time_ratio_cap", "Lead Time Ratio Cap"}, {"defect_rate_cap", "Defect Rate Cap"}, {"otif_target", "OTIF Target"}, {"as_of_date", "As Of Date"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

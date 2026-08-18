@@ -1,0 +1,12 @@
+/// Host and port of the PostgreSQL server (docker-compose maps 5433).
+expression PgServer = "localhost:5433" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 20239e56-3dac-57e3-987e-45b23c6db1bc
+
+	annotation PBI_ResultType = Text
+
+/// Database that holds the mart schema.
+expression PgDatabase = "scorecard" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: ea41bbdf-d994-5e49-84af-3daaeb496289
+
+	annotation PBI_ResultType = Text
+

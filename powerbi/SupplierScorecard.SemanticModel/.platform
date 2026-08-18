@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "SupplierScorecard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "a778646e-7668-583d-8f55-95ae0e79c6d1"
+  }
+}

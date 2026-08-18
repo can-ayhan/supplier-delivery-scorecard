@@ -1,0 +1,58 @@
+table Plant
+	lineageTag: 196974f4-5dd6-5d1b-9a44-d75b14401143
+
+	column 'Plant Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 231d5add-d324-52f5-8e48-fb090ad2c3dc
+		summarizeBy: none
+		sourceColumn: Plant Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plant ID'
+		dataType: string
+		lineageTag: 58f8df53-7be5-5a10-b5a6-3cc918aa7479
+		summarizeBy: none
+		sourceColumn: Plant ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Plant
+		dataType: string
+		lineageTag: 546456af-569a-5a90-acf6-01661433c579
+		summarizeBy: none
+		sourceColumn: Plant
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 6a861e7f-b533-5932-b3a1-4d43cd04340b
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plant Country'
+		dataType: string
+		lineageTag: baac2e60-12e3-570c-b2de-0cb90eaabb72
+		summarizeBy: none
+		sourceColumn: Plant Country
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Plant = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "dim_plant"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"plant_key", "plant_id", "plant_name", "city", "country_code"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"plant_key", Int64.Type}, {"plant_id", type text}, {"plant_name", type text}, {"city", type text}, {"country_code", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"plant_key", "Plant Key"}, {"plant_id", "Plant ID"}, {"plant_name", "Plant"}, {"city", "City"}, {"country_code", "Plant Country"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

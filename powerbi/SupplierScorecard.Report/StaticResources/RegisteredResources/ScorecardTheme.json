@@ -1,0 +1,20 @@
+{
+  "name": "Scorecard",
+  "dataColors": [
+    "#1F3A5F",
+    "#2E86AB",
+    "#E0A030",
+    "#C8553D",
+    "#5B8E7D",
+    "#8D99AE",
+    "#6C4F82",
+    "#3D5A80"
+  ],
+  "good": "#5B8E7D",
+  "neutral": "#E0A030",
+  "bad": "#C8553D",
+  "maximum": "#1F3A5F",
+  "center": "#8D99AE",
+  "minimum": "#D9E2EC",
+  "tableAccent": "#1F3A5F"
+}

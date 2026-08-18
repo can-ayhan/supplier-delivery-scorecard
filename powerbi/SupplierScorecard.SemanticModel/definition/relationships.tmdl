@@ -1,0 +1,63 @@
+relationship 1a569941-2de1-5842-994e-909589b23d90
+	fromColumn: 'PO Lines'.'Supplier Key'
+	toColumn: Supplier.'Supplier Key'
+
+relationship aad73131-b548-51a1-befb-2792afc9bb72
+	fromColumn: 'PO Lines'.'Material Key'
+	toColumn: Material.'Material Key'
+
+relationship 0cdd87ea-5c37-5239-9702-2defdba365f1
+	fromColumn: 'PO Lines'.'Plant Key'
+	toColumn: Plant.'Plant Key'
+
+relationship 3f7ab748-b29a-5a9e-a6d2-da88e0a17af2
+	fromColumn: 'PO Lines'.'Due Date Key'
+	toColumn: Date.'Date Key'
+
+relationship b608ab21-4265-50c4-ab49-5b3b7b65dcfa
+	isActive: false
+	fromColumn: 'PO Lines'.'Order Date Key'
+	toColumn: Date.'Date Key'
+
+relationship 1104a6f5-707d-5765-a08f-d990efa70b17
+	isActive: false
+	fromColumn: 'PO Lines'.'Delivery Date Key'
+	toColumn: Date.'Date Key'
+
+relationship e02cdaa9-f36f-53b6-bedb-933b441c39b6
+	fromColumn: 'Goods Receipts'.'Supplier Key'
+	toColumn: Supplier.'Supplier Key'
+
+relationship 4d624d50-0dac-5076-8e94-3c6a2a04bca4
+	fromColumn: 'Goods Receipts'.'Material Key'
+	toColumn: Material.'Material Key'
+
+relationship eb90f7ac-ece9-52af-8b8a-6f39fd0b3a7f
+	fromColumn: 'Goods Receipts'.'Plant Key'
+	toColumn: Plant.'Plant Key'
+
+relationship f0a3b91c-c761-51bf-9aa6-fbee654c1848
+	fromColumn: 'Goods Receipts'.'Posting Date Key'
+	toColumn: Date.'Date Key'
+
+relationship f85b26bb-ad00-512d-934a-692a8e5e6dde
+	fromColumn: 'Inspection Lots'.'Supplier Key'
+	toColumn: Supplier.'Supplier Key'
+
+relationship 128e60a6-0247-5ac8-9849-b1b2f8c851ad
+	fromColumn: 'Inspection Lots'.'Material Key'
+	toColumn: Material.'Material Key'
+
+relationship 1233bced-a3c4-5ab3-bfd6-165eb89f6dc5
+	fromColumn: 'Inspection Lots'.'Plant Key'
+	toColumn: Plant.'Plant Key'
+
+relationship 2f5c771b-5720-5873-a9ce-31b68a3b4623
+	fromColumn: 'Inspection Lots'.'Lot Date Key'
+	toColumn: Date.'Date Key'
+
+relationship 987f7677-3171-5331-a806-8eb50eb99f85
+	isActive: false
+	fromColumn: 'Inspection Lots'.'Decision Date Key'
+	toColumn: Date.'Date Key'
+

@@ -1,0 +1,195 @@
+table 'Inspection Lots'
+	lineageTag: ff210024-6aa5-59a8-b9d2-519a79d5e20d
+
+	column 'Inspection Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 92227670-5c61-5577-aec8-96c2a7a621f5
+		summarizeBy: none
+		sourceColumn: Inspection Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lot Number'
+		dataType: string
+		lineageTag: f5379bca-ddf9-51ac-bcbf-7674ea3db12b
+		summarizeBy: none
+		sourceColumn: Lot Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e475ddd8-e1d1-5d04-a340-5021f73b7c6d
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6051add3-ab11-5094-a4b9-61d198bb4194
+		summarizeBy: none
+		sourceColumn: Material Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plant Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b1980f0c-ca1d-50de-9194-48678c2465d2
+		summarizeBy: none
+		sourceColumn: Plant Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lot Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 67c41736-9b21-56be-90e8-2d45adbe4c44
+		summarizeBy: none
+		sourceColumn: Lot Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Decision Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e84c2406-eff8-5d84-9fcd-955562dcfb84
+		summarizeBy: none
+		sourceColumn: Decision Date Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PO Number'
+		dataType: string
+		lineageTag: fa75a710-21ed-56fe-a244-0919beb2d753
+		summarizeBy: none
+		sourceColumn: PO Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PO Item'
+		dataType: int64
+		formatString: 0
+		lineageTag: deec9bc7-0fc4-5410-9c1e-756d341a0e41
+		summarizeBy: none
+		sourceColumn: PO Item
+
+		annotation SummarizationSetBy = Automatic
+
+	column UoM
+		dataType: string
+		lineageTag: 2efce0c2-264d-5fe9-8833-0079892a2843
+		summarizeBy: none
+		sourceColumn: UoM
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lot Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 7833451b-ce3e-5acf-a6ad-911d4b92ed90
+		summarizeBy: none
+		sourceColumn: Lot Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Accepted Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: f890da76-c10c-5a10-b4bd-0a2762342ec8
+		summarizeBy: none
+		sourceColumn: Accepted Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rejected Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 22045e9e-17be-537f-9b30-f551f865451e
+		summarizeBy: none
+		sourceColumn: Rejected Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Blocked Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 28fd108f-9e21-5453-9c8f-81b075bb9806
+		summarizeBy: none
+		sourceColumn: Blocked Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Returned Qty'
+		dataType: double
+		formatString: #,0.###
+		lineageTag: 04212829-2621-5188-bc28-830e1eabb265
+		summarizeBy: none
+		sourceColumn: Returned Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column Decision
+		dataType: string
+		lineageTag: 6d730b16-2386-5674-ab7e-f37d316a9643
+		summarizeBy: none
+		sourceColumn: Decision
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Decided'
+		dataType: boolean
+		lineageTag: 6917af0c-daf7-5f95-b489-08595b624646
+		summarizeBy: none
+		sourceColumn: Is Decided
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Rejected'
+		dataType: boolean
+		lineageTag: 23132116-976c-5e31-a5e6-ecdc7ab30d01
+		summarizeBy: none
+		sourceColumn: Is Rejected
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Has Defects'
+		dataType: boolean
+		lineageTag: 3add2d40-6616-5f65-8915-a226e829c82d
+		summarizeBy: none
+		sourceColumn: Has Defects
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Inspection Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: 082a50fc-bd87-5d44-bf23-4ad40dd98c06
+		summarizeBy: none
+		sourceColumn: Inspection Days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Inspection Lots' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "fact_inspection"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"inspection_key", "lot_number", "supplier_key", "material_key", "plant_key", "lot_date_key", "decision_date_key", "po_number", "po_item", "uom", "lot_qty", "accepted_qty", "rejected_qty", "blocked_qty", "returned_qty", "decision", "is_decided", "is_rejected", "has_defects", "inspection_days"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"inspection_key", Int64.Type}, {"lot_number", type text}, {"supplier_key", Int64.Type}, {"material_key", Int64.Type}, {"plant_key", Int64.Type}, {"lot_date_key", Int64.Type}, {"decision_date_key", Int64.Type}, {"po_number", type text}, {"po_item", Int64.Type}, {"uom", type text}, {"lot_qty", type number}, {"accepted_qty", type number}, {"rejected_qty", type number}, {"blocked_qty", type number}, {"returned_qty", type number}, {"decision", type text}, {"is_decided", type logical}, {"is_rejected", type logical}, {"has_defects", type logical}, {"inspection_days", Int64.Type}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"inspection_key", "Inspection Key"}, {"lot_number", "Lot Number"}, {"supplier_key", "Supplier Key"}, {"material_key", "Material Key"}, {"plant_key", "Plant Key"}, {"lot_date_key", "Lot Date Key"}, {"decision_date_key", "Decision Date Key"}, {"po_number", "PO Number"}, {"po_item", "PO Item"}, {"uom", "UoM"}, {"lot_qty", "Lot Qty"}, {"accepted_qty", "Accepted Qty"}, {"rejected_qty", "Rejected Qty"}, {"blocked_qty", "Blocked Qty"}, {"returned_qty", "Returned Qty"}, {"decision", "Decision"}, {"is_decided", "Is Decided"}, {"is_rejected", "Is Rejected"}, {"has_defects", "Has Defects"}, {"inspection_days", "Inspection Days"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

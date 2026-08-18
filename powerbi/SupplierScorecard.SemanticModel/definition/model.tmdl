@@ -1,0 +1,25 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["PgServer","PgDatabase","Date","Supplier","Material","Plant","PO Lines","Goods Receipts","Inspection Lots","KPI Parameters","_Measures"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Date
+ref table Supplier
+ref table Material
+ref table Plant
+ref table 'PO Lines'
+ref table 'Goods Receipts'
+ref table 'Inspection Lots'
+ref table 'KPI Parameters'
+ref table '_Measures'
+

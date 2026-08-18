@@ -1,0 +1,171 @@
+/// All measures live here, grouped in display folders.
+table '_Measures'
+	lineageTag: 321a0b02-a7a0-5bfd-96ac-b06525258205
+
+	/// All purchase order lines, due or not.
+	measure 'Order Lines' = COUNTROWS ( 'PO Lines' )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 209e17b3-746a-514d-b336-4c7c7d175b2d
+
+	/// Lines with a due date on or before the as-of date. Every delivery KPI is measured on these.
+	measure 'Due Lines' = CALCULATE ( COUNTROWS ( 'PO Lines' ), 'PO Lines'[Is Due] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 79501fa9-d313-58bd-af28-eae569ca4161
+
+	/// Lines that are not due yet.
+	measure 'Open Lines' = CALCULATE ( COUNTROWS ( 'PO Lines' ), 'PO Lines'[Is Due] = FALSE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 2564cd9d-99d4-5e80-be04-d48d9d1c9439
+
+	measure 'OTIF Lines' = CALCULATE ( [Due Lines], 'PO Lines'[Is OTIF] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: be525a5d-17fe-5150-adb7-a241492ff7ac
+
+	measure 'On-Time Lines' = CALCULATE ( [Due Lines], 'PO Lines'[Is On Time] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: a49a41da-ecb8-5ad8-82dd-2511d3393f38
+
+	measure 'In-Full Lines' = CALCULATE ( [Due Lines], 'PO Lines'[Is In Full] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: a77d0384-c7dc-5de5-a5fc-ec2c2851f4a6
+
+	/// Due lines delivered after the due date.
+	measure 'Late Lines' = CALCULATE ( [Due Lines], 'PO Lines'[Days Late] > 0 )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 93d07a74-1b3f-539d-a87e-aa7484cfdac4
+
+	/// Due lines with nothing received.
+	measure 'Not Delivered Lines' = CALCULATE ( [Due Lines], 'PO Lines'[Delivery Status] = "Not delivered" )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 8e24998f-cc64-551b-8f1d-10af9ad07475
+
+	/// Share of due lines that were complete on or before the due date.
+	measure 'OTIF %' = DIVIDE ( [OTIF Lines], [Due Lines] )
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: 4a6ac4cd-ebfd-5508-83a2-9e25080ad53a
+
+	measure 'On-Time %' = DIVIDE ( [On-Time Lines], [Due Lines] )
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: 28b5d719-2031-51b2-9218-ea42c428f096
+
+	measure 'In-Full %' = DIVIDE ( [In-Full Lines], [Due Lines] )
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: 7392a2eb-887f-5c33-9647-1b180c89f2de
+
+	/// Target from mart.kpi_params.
+	measure 'OTIF Target' = MAX ( 'KPI Parameters'[OTIF Target] )
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: 31c973b3-d799-5c5e-94b9-31e0e1fe4d6d
+
+	/// Gap to target in percentage points.
+	measure 'OTIF vs Target (pp)' = IF ( NOT ISBLANK ( [OTIF %] ), ( [OTIF %] - [OTIF Target] ) * 100 )
+		formatString: +0.0;-0.0;0.0
+		displayFolder: Delivery
+		lineageTag: 3c38381d-7007-5f73-ae5d-765b4118e1b1
+
+	/// OTIF over the three months ending in the current month, to smooth months with few due lines.
+	measure 'OTIF % (3M rolling)' =
+			IF (
+			    NOT ISBLANK ( [Due Lines] ),
+			    CALCULATE (
+			        [OTIF %],
+			        DATESINPERIOD ( 'Date'[Date], MAX ( 'Date'[Date] ), -3, MONTH )
+			    )
+			)
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: cd32f261-e6f1-55eb-ae14-9dc0858ca776
+
+	/// Value of the ordered quantity at the PO price.
+	measure 'Order Value' = SUM ( 'PO Lines'[Order Value EUR] )
+		formatString: "€"#,0
+		displayFolder: Delivery
+		lineageTag: 4a48bceb-1cf4-5e5a-ae06-de2b8f8007af
+
+	/// Order lines by the date the PO was created instead of the due date.
+	measure 'Lines Ordered' =
+			CALCULATE (
+			    [Order Lines],
+			    USERELATIONSHIP ( 'PO Lines'[Order Date Key], 'Date'[Date Key] )
+			)
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 1accd5a5-7536-5c87-a1dc-ff94937f1a52
+
+	/// Order date to the day the line was complete (or to the last receipt if it never was).
+	measure 'Avg Lead Time (days)' = CALCULATE ( AVERAGE ( 'PO Lines'[Lead Time Days] ), 'PO Lines'[Is Due] = TRUE () )
+		formatString: 0.0
+		displayFolder: Lead time
+		lineageTag: 8ff694b4-b59c-5da2-8d05-721b32d02155
+
+	/// Order date to due date, for delivered lines.
+	measure 'Avg Planned Lead Time (days)' =
+			CALCULATE (
+			    AVERAGE ( 'PO Lines'[Planned Lead Time Days] ),
+			    'PO Lines'[Is Due] = TRUE (),
+			    NOT ISBLANK ( 'PO Lines'[Lead Time Days] )
+			)
+		formatString: 0.0
+		displayFolder: Lead time
+		lineageTag: cfabe162-fe85-55a6-8733-9f83b0467d0a
+
+	/// Actual over planned lead time. 1.00 means deliveries take as long as promised.
+	measure 'Lead Time Ratio' =
+			DIVIDE (
+			    CALCULATE ( SUM ( 'PO Lines'[Lead Time Days] ), 'PO Lines'[Is Due] = TRUE () ),
+			    CALCULATE (
+			        SUM ( 'PO Lines'[Planned Lead Time Days] ),
+			        'PO Lines'[Is Due] = TRUE (),
+			        NOT ISBLANK ( 'PO Lines'[Lead Time Days] )
+			    )
+			)
+		formatString: 0.00
+		displayFolder: Lead time
+		lineageTag: 1aab5713-dc0e-5658-a2c3-07c79184b8e5
+
+	/// Average delay of the lines that were late.
+	measure 'Avg Days Late' =
+			CALCULATE (
+			    AVERAGE ( 'PO Lines'[Days Late] ),
+			    'PO Lines'[Is Due] = TRUE (),
+			    'PO Lines'[Days Late] > 0
+			)
+		formatString: 0.0
+		displayFolder: Lead time
+		lineageTag: 15659292-2a32-5b04-a27f-1cf7eba117da
+
+	/// Last posting date in the exports, for the report header.
+	measure 'Data As Of' = "Data as of " & FORMAT ( MAX ( 'KPI Parameters'[As Of Date] ), "d mmm yyyy" )
+		displayFolder: Info
+		lineageTag: 6463de04-314b-52b9-9d52-cddf70de13b4
+
+	column Placeholder
+		dataType: string
+		isHidden
+		lineageTag: b1e42ed7-0881-5ddb-a630-ff62f6705e83
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition '_Measures' = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Placeholder = text], {})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

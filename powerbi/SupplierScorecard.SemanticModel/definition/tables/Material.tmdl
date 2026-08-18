@@ -1,0 +1,66 @@
+table Material
+	lineageTag: 2a415e37-1274-5b09-979f-327ffba47c91
+
+	column 'Material Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c11aded0-68ce-5d91-bea6-5cc7d3dfea17
+		summarizeBy: none
+		sourceColumn: Material Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material ID'
+		dataType: string
+		lineageTag: f6c2cee2-e34b-5526-ab66-2c59dfed99fc
+		summarizeBy: none
+		sourceColumn: Material ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Material
+		dataType: string
+		lineageTag: 013f5d9e-8cb1-5793-8c29-4f054d7f907f
+		summarizeBy: none
+		sourceColumn: Material
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Group Code'
+		dataType: string
+		lineageTag: e37e7822-28aa-57b6-810d-abc2f65ea3bf
+		summarizeBy: none
+		sourceColumn: Material Group Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material Group'
+		dataType: string
+		lineageTag: 3ce46d9d-08dc-5be0-9795-5cdccb570894
+		summarizeBy: none
+		sourceColumn: Material Group
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Base UoM'
+		dataType: string
+		lineageTag: 2ff5eae4-29d5-5c8c-960d-37101ca304f9
+		summarizeBy: none
+		sourceColumn: Base UoM
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Material = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "mart", Item = "dim_material"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"material_key", "material_id", "material_text", "material_group", "material_group_name", "base_uom"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"material_key", Int64.Type}, {"material_id", type text}, {"material_text", type text}, {"material_group", type text}, {"material_group_name", type text}, {"base_uom", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"material_key", "Material Key"}, {"material_id", "Material ID"}, {"material_text", "Material"}, {"material_group", "Material Group Code"}, {"material_group_name", "Material Group"}, {"base_uom", "Base UoM"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
