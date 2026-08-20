@@ -63,8 +63,8 @@ table '_Measures'
 		displayFolder: Delivery
 		lineageTag: 7392a2eb-887f-5c33-9647-1b180c89f2de
 
-	/// Target from mart.kpi_params.
-	measure 'OTIF Target' = MAX ( 'KPI Parameters'[OTIF Target] )
+	/// Target from mart.kpi_params. Blank where there are no due lines, so charts do not draw it into empty months.
+	measure 'OTIF Target' = IF ( NOT ISBLANK ( [Due Lines] ), MAX ( 'KPI Parameters'[OTIF Target] ) )
 		formatString: 0.0%
 		displayFolder: Delivery
 		lineageTag: 31c973b3-d799-5c5e-94b9-31e0e1fe4d6d
