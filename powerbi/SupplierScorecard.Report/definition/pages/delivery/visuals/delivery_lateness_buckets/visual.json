@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Due Lines"
+                  "Property": "Late Lines"
                 }
               },
-              "queryRef": "_Measures.Due Lines",
-              "nativeQueryRef": "Due Lines"
+              "queryRef": "_Measures.Late Lines",
+              "nativeQueryRef": "Late Lines"
             }
           ]
         }
@@ -83,7 +83,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'How late? Due lines by delay'"
+                  "Value": "'How late? Late lines by delay'"
                 }
               }
             }
