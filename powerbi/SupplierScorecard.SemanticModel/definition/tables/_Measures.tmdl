@@ -146,6 +146,81 @@ table '_Measures'
 		displayFolder: Lead time
 		lineageTag: 15659292-2a32-5b04-a27f-1cf7eba117da
 
+	/// Inspection lots with a usage decision.
+	measure 'Lots Inspected' = CALCULATE ( COUNTROWS ( 'Inspection Lots' ), 'Inspection Lots'[Is Decided] = TRUE () )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 183fb08b-6532-5516-98a7-efa33741a7bd
+
+	/// Lots where any quantity was blocked or returned.
+	measure 'Lots with Defects' = CALCULATE ( [Lots Inspected], 'Inspection Lots'[Has Defects] = TRUE () )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: b3c11716-050a-5a2a-b390-992c844416aa
+
+	/// Lots rejected as a whole.
+	measure 'Lots Rejected' = CALCULATE ( COUNTROWS ( 'Inspection Lots' ), 'Inspection Lots'[Is Rejected] = TRUE () )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 2368b5f4-3419-59ed-b63d-4aa808b806c9
+
+	measure 'Inspected Qty' = CALCULATE ( SUM ( 'Inspection Lots'[Lot Qty] ), 'Inspection Lots'[Is Decided] = TRUE () )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 40f41da8-7858-59ad-9d3b-992e0a84a5c5
+
+	/// Blocked plus returned quantity.
+	measure 'Rejected Qty' = CALCULATE ( SUM ( 'Inspection Lots'[Rejected Qty] ), 'Inspection Lots'[Is Decided] = TRUE () )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 1701c0bd-f4d8-5c99-86cd-e73f062f2653
+
+	/// Rejected quantity over inspected quantity.
+	measure 'Defect Rate %' = DIVIDE ( [Rejected Qty], [Inspected Qty] )
+		formatString: 0.00%
+		displayFolder: Quality
+		lineageTag: 34e930b0-2179-5cf7-9ed7-5a703103083f
+
+	/// Defect rate in parts per million.
+	measure 'Defect PPM' = ROUND ( [Defect Rate %] * 1000000, 0 )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 27212a6e-9a7e-5a2e-931e-e922e13ba03a
+
+	/// Share of inspected lots with any defect.
+	measure 'Lot Defect %' = DIVIDE ( [Lots with Defects], [Lots Inspected] )
+		formatString: 0.0%
+		displayFolder: Quality
+		lineageTag: 67a98088-5aae-5ff1-8ddc-4684e763b65e
+
+	/// Goods receipt postings (movement type 101).
+	measure 'Receipt Lines' = CALCULATE ( COUNTROWS ( 'Goods Receipts' ), 'Goods Receipts'[Movement Type] = "101" )
+		formatString: #,0
+		displayFolder: Receipts
+		lineageTag: 2b93a500-ecf9-5df1-958e-9289db9686ac
+
+	/// Receipts net of reversals.
+	measure 'Received Qty' = CALCULATE ( SUM ( 'Goods Receipts'[Quantity] ), 'Goods Receipts'[Movement Type] IN { "101", "102" } )
+		formatString: #,0
+		displayFolder: Receipts
+		lineageTag: beff56d2-a7b0-58d1-8efb-a448d8313dd4
+
+	/// Quantity sent back to the supplier (movement type 122).
+	measure 'Returned Qty' = - CALCULATE ( SUM ( 'Goods Receipts'[Quantity] ), 'Goods Receipts'[Movement Type] = "122" )
+		formatString: #,0
+		displayFolder: Receipts
+		lineageTag: e14dc9fa-1a79-572b-a2fb-61302895e35b
+
+	/// Share of receipt postings dated after the line's due date.
+	measure 'Late Receipt %' =
+			DIVIDE (
+			    CALCULATE ( [Receipt Lines], 'Goods Receipts'[After Due Date] = TRUE () ),
+			    [Receipt Lines]
+			)
+		formatString: 0.0%
+		displayFolder: Receipts
+		lineageTag: ec110030-d700-50e7-b8f1-9a4eaeaef51d
+
 	/// Last posting date in the exports, for the report header.
 	measure 'Data As Of' = "Data as of " & FORMAT ( MAX ( 'KPI Parameters'[As Of Date] ), "d mmm yyyy" )
 		displayFolder: Info

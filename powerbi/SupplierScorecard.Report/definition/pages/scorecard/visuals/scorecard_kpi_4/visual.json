@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
   "name": "scorecard_kpi_4",
   "position": {
-    "x": 957.0,
+    "x": 770.4,
     "y": 138,
     "z": 10000,
     "height": 92,
-    "width": 299.0,
+    "width": 236.8,
     "tabOrder": 10000
   },
   "visual": {

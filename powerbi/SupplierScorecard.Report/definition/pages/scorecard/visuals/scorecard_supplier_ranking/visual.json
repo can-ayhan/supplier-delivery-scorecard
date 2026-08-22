@@ -4,10 +4,10 @@
   "position": {
     "x": 24,
     "y": 242,
-    "z": 11000,
+    "z": 12000,
     "height": 454,
     "width": 768,
-    "tabOrder": 11000
+    "tabOrder": 12000
   },
   "visual": {
     "visualType": "tableEx",
@@ -113,6 +113,21 @@
               "queryRef": "_Measures.Avg Lead Time (days)",
               "nativeQueryRef": "Avg Lead Time (days)",
               "displayName": "Lead Time (d)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Defect Rate %"
+                }
+              },
+              "queryRef": "_Measures.Defect Rate %",
+              "nativeQueryRef": "Defect Rate %",
+              "displayName": "Defect %"
             }
           ]
         }
