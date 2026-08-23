@@ -193,6 +193,70 @@ table '_Measures'
 		displayFolder: Quality
 		lineageTag: 67a98088-5aae-5ff1-8ddc-4684e763b65e
 
+	/// OTIF % on a 0-100 scale.
+	measure 'Delivery Score' = 100 * [OTIF %]
+		formatString: 0.0
+		displayFolder: Score
+		lineageTag: db49a555-48ee-52e2-b508-462541a69e90
+
+	/// 100 when deliveries take as long as planned, 0 at the lead time ratio cap.
+	measure 'Lead Time Score' =
+			VAR Ratio = [Lead Time Ratio]
+			VAR RatioCap = MAX ( 'KPI Parameters'[Lead Time Ratio Cap] )
+			RETURN
+			    IF (
+			        NOT ISBLANK ( Ratio ),
+			        100 * MAX ( 0, MIN ( 1, DIVIDE ( RatioCap - Ratio, RatioCap - 1 ) ) )
+			    )
+		formatString: 0.0
+		displayFolder: Score
+		lineageTag: 359a2a13-7217-5058-b109-53e98e30760d
+
+	/// 100 at zero defects, 0 at the defect rate cap.
+	measure 'Quality Score' =
+			VAR RateCap = MAX ( 'KPI Parameters'[Defect Rate Cap] )
+			RETURN
+			    IF (
+			        NOT ISBLANK ( [Inspected Qty] ),
+			        100 * MAX ( 0, 1 - DIVIDE ( [Defect Rate %], RateCap ) )
+			    )
+		formatString: 0.0
+		displayFolder: Score
+		lineageTag: c5980b32-402e-54dc-baee-fe001742602b
+
+	/// Weighted delivery, lead time and quality score. A component without data is left out and the other weights are rescaled.
+	measure 'Supplier Score' =
+			VAR Delivery = [Delivery Score]
+			VAR LeadTime = [Lead Time Score]
+			VAR Quality = [Quality Score]
+			VAR WeightDelivery = IF ( NOT ISBLANK ( Delivery ), MAX ( 'KPI Parameters'[Weight Delivery] ) )
+			VAR WeightLeadTime = IF ( NOT ISBLANK ( LeadTime ), MAX ( 'KPI Parameters'[Weight Lead Time] ) )
+			VAR WeightQuality = IF ( NOT ISBLANK ( Quality ), MAX ( 'KPI Parameters'[Weight Quality] ) )
+			RETURN
+			    DIVIDE (
+			        Delivery * WeightDelivery + LeadTime * WeightLeadTime + Quality * WeightQuality,
+			        WeightDelivery + WeightLeadTime + WeightQuality
+			    )
+		formatString: 0.0
+		displayFolder: Score
+		lineageTag: 71618723-7ede-5a4c-adea-0a6631da924c
+
+	/// Rank by supplier score among the suppliers left after slicers.
+	measure 'Supplier Rank' =
+			IF (
+			    HASONEVALUE ( Supplier[Supplier ID] ) && NOT ISBLANK ( [Supplier Score] ),
+			    RANKX (
+			        FILTER ( ALLSELECTED ( Supplier ), NOT ISBLANK ( [Supplier Score] ) ),
+			        [Supplier Score],
+			        ,
+			        DESC,
+			        SKIP
+			    )
+			)
+		formatString: 0
+		displayFolder: Score
+		lineageTag: bf323f81-9ad3-5d3f-8dce-21a4f17e667e
+
 	/// Goods receipt postings (movement type 101).
 	measure 'Receipt Lines' = CALCULATE ( COUNTROWS ( 'Goods Receipts' ), 'Goods Receipts'[Movement Type] = "101" )
 		formatString: #,0

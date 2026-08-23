@@ -17,6 +17,21 @@
           "projections": [
             {
               "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Supplier Rank"
+                }
+              },
+              "queryRef": "_Measures.Supplier Rank",
+              "nativeQueryRef": "Supplier Rank",
+              "displayName": "Rank"
+            },
+            {
+              "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
@@ -79,34 +94,6 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "On-Time %"
-                }
-              },
-              "queryRef": "_Measures.On-Time %",
-              "nativeQueryRef": "On-Time %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "In-Full %"
-                }
-              },
-              "queryRef": "_Measures.In-Full %",
-              "nativeQueryRef": "In-Full %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "Avg Lead Time (days)"
                 }
               },
@@ -128,6 +115,21 @@
               "queryRef": "_Measures.Defect Rate %",
               "nativeQueryRef": "Defect Rate %",
               "displayName": "Defect %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Supplier Score"
+                }
+              },
+              "queryRef": "_Measures.Supplier Score",
+              "nativeQueryRef": "Supplier Score",
+              "displayName": "Score"
             }
           ]
         }
@@ -142,7 +144,7 @@
                     "Entity": "_Measures"
                   }
                 },
-                "Property": "OTIF %"
+                "Property": "Supplier Score"
               }
             },
             "direction": "Descending"
@@ -247,7 +249,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Suppliers by OTIF %'"
+                  "Value": "'Supplier ranking (50 % delivery, 20 % lead time, 30 % quality)'"
                 }
               }
             }
