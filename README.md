@@ -2,7 +2,9 @@
 
 Supplier performance report built from three SAP-style exports: purchase orders, goods receipts and quality inspection lots. It answers one question for a purchasing team: which suppliers deliver on time, in full and without defects?
 
-The exports are consolidated and validated in PostgreSQL and modelled as a star schema. The report layer comes next.
+![Scorecard page](docs/scorecard.png)
+
+The exports are consolidated and validated in PostgreSQL, modelled as a star schema, and reported in Power BI.
 
 The data is synthetic. A generator writes exports that look and misbehave like the real thing, so no company data is in this repository.
 
@@ -15,6 +17,7 @@ flowchart LR
     C[inspection_lots_QA32.csv] --> S
     S[staging<br/>raw text, then typed] --> V[validation<br/>dq.issues]
     V --> M[mart<br/>star schema]
+    M --> P[Power BI report]
 ```
 
 | Step | Where | What happens |
@@ -23,7 +26,7 @@ flowchart LR
 | Clean | `sql/02` | SAP formatting is undone: `31.07.2026` and `20260731` dates, `1.250,000` numbers, trailing minus, zero-padded keys |
 | Validate | `sql/03` | 15 checks. Errors are left out of the marts, warnings are kept and listed |
 | Model | `sql/04`, `sql/05` | Three facts and four shared dimensions, on-time and in-full derived per PO line |
-| Report | `sql/06` | KPI views: flat delivery lines, supplier scorecard, monthly trend |
+| Report | `sql/06`, `powerbi/` | KPI views in SQL, the same KPIs as DAX measures |
 
 ## The exports
 
@@ -64,7 +67,7 @@ Run on the committed exports:
 | Receipt on a deleted PO line | warning | 3 | kept |
 | Inspection lot without a receipt | warning | 5 | kept |
 
-69 rows are left out, 74 findings are kept for review. Every finding is in `dq.issues` with the file, row number and record key, and can be exported with `python -m scorecard validate --export findings.csv`.
+69 rows are left out, 74 findings are kept for review. Every finding is in `dq.issues` with the file, row number and record key, and can be exported with `python -m scorecard validate --export findings.csv`. The report has a page for them, so a reader can see what was excluded before trusting the KPIs.
 
 ## Model
 
@@ -97,13 +100,32 @@ erDiagram
 - **Defect rate**: blocked plus returned quantity over inspected quantity, for lots with a usage decision. Returns to the supplier (122) count as a quality outcome, not as a short delivery.
 - **Supplier score**: 50 % delivery (OTIF), 20 % lead time against plan, 30 % quality, each on a 0 to 100 scale. A component without data is left out and the other weights are rescaled.
 
-Tolerances and weights live in one table, `mart.kpi_params`, so the report layer can read the same values as the SQL.
+Tolerances, weights and the OTIF target live in one table, `mart.kpi_params`, which both SQL and Power BI read.
 
 On the committed data: OTIF 75.6 %, on time 77.6 %, in full 96.8 %, average lead time 21.4 days, defect rate 1.06 %.
 
+## Power BI report
+
+`powerbi/SupplierScorecard.pbip` is a Power BI Project, so the model (TMDL) and the report are text files in this repository instead of one binary.
+
+- Power Query reads the mart tables from PostgreSQL through two parameters (`PgServer`, `PgDatabase`), renames the columns and adds a delay bucket for the delivery page.
+- One date table. The PO line fact relates to it three times: due date is the active relationship, order date and delivery date are inactive and used through `USERELATIONSHIP`.
+- 41 measures in display folders. The score measures read their weights and caps from the KPI Parameters table.
+- `DAXQueries/Supplier scorecard check.dax` returns the scorecard per supplier. Its result matches `mart.v_supplier_scorecard` for every measure and supplier.
+
+| Delivery | Quality |
+|---|---|
+| ![Delivery page](docs/delivery.png) | ![Quality page](docs/quality.png) |
+
+The fourth page lists the validation checks and their findings:
+
+![Data quality page](docs/data_quality.png)
+
+To open it: start the database and run the pipeline (below), open the `.pbip` file in Power BI Desktop, choose Refresh, and sign in to the database with the user and password from `.env`.
+
 ## Run it
 
-Requirements: Python 3.11+, Docker.
+Requirements: Python 3.11+, Docker. Power BI Desktop for the report.
 
 ```bash
 docker compose up -d                      # PostgreSQL on port 5433
@@ -125,10 +147,10 @@ data/raw/          the three exports and the list of planted issues
 data/reference/    plant, material group and country names
 sql/               numbered scripts: staging, validation, star schema, views
 src/scorecard/     generator, loader, pipeline
+powerbi/           Power BI Project: semantic model and report
 tests/             pytest suite, runs against the docker-compose database
 ```
 
 ## Next
 
-- Power BI report on the mart schema, with the KPIs as DAX measures
-- Excel workbook with pivot tables over the same model
+- Excel workbook with pivot tables over the same model, for questions the report does not answer
