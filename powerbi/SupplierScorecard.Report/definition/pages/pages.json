@@ -3,7 +3,8 @@
   "pageOrder": [
     "scorecard",
     "delivery",
-    "quality"
+    "quality",
+    "data_quality"
   ],
   "activePageName": "scorecard"
 }

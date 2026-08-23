@@ -61,3 +61,7 @@ relationship 987f7677-3171-5331-a806-8eb50eb99f85
 	fromColumn: 'Inspection Lots'.'Decision Date Key'
 	toColumn: Date.'Date Key'
 
+relationship 19e0889d-8943-52c0-88e4-490e3fb8aeef
+	fromColumn: 'DQ Issues'.'Check ID'
+	toColumn: 'DQ Checks'.'Check ID'
+

@@ -1,0 +1,26 @@
+// Reconciliation query: the same numbers as mart.v_supplier_scorecard in PostgreSQL,
+// calculated by the DAX measures. Run it after a refresh and compare with
+//   select * from mart.v_supplier_scorecard order by supplier_rank;
+EVALUATE
+SUMMARIZECOLUMNS (
+    Supplier[Supplier ID],
+    Supplier[Supplier],
+    "Due Lines", [Due Lines],
+    "OTIF %", [OTIF %],
+    "On-Time %", [On-Time %],
+    "In-Full %", [In-Full %],
+    "Late Lines", [Late Lines],
+    "Avg Lead Time (days)", [Avg Lead Time (days)],
+    "Avg Days Late", [Avg Days Late],
+    "Lead Time Ratio", [Lead Time Ratio],
+    "Lots Inspected", [Lots Inspected],
+    "Lots with Defects", [Lots with Defects],
+    "Lots Rejected", [Lots Rejected],
+    "Defect Rate %", [Defect Rate %],
+    "Delivery Score", [Delivery Score],
+    "Lead Time Score", [Lead Time Score],
+    "Quality Score", [Quality Score],
+    "Supplier Score", [Supplier Score],
+    "Supplier Rank", [Supplier Rank]
+)
+ORDER BY [Supplier Rank]

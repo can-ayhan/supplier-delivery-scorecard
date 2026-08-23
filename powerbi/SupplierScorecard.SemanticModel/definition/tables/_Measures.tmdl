@@ -285,6 +285,24 @@ table '_Measures'
 		displayFolder: Receipts
 		lineageTag: ec110030-d700-50e7-b8f1-9a4eaeaef51d
 
+	/// Rows flagged by the validation step.
+	measure 'DQ Findings' = COUNTROWS ( 'DQ Issues' )
+		formatString: #,0
+		displayFolder: Data quality
+		lineageTag: db26dd3a-3c58-511e-8a73-115d1119b99c
+
+	/// Findings with severity error: left out of the model.
+	measure 'DQ Rows Dropped' = CALCULATE ( [DQ Findings], 'DQ Checks'[Severity] = "error" )
+		formatString: #,0
+		displayFolder: Data quality
+		lineageTag: 3cd7dba7-ad79-523a-899e-313cc65505d9
+
+	/// Findings with severity warning: kept, to be checked.
+	measure 'DQ For Review' = CALCULATE ( [DQ Findings], 'DQ Checks'[Severity] = "warning" )
+		formatString: #,0
+		displayFolder: Data quality
+		lineageTag: a964e1db-b2ea-52fd-86e3-0eede1568878
+
 	/// Last posting date in the exports, for the report header.
 	measure 'Data As Of' = "Data as of " & FORMAT ( MAX ( 'KPI Parameters'[As Of Date] ), "d mmm yyyy" )
 		displayFolder: Info

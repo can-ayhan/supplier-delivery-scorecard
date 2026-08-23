@@ -1,0 +1,56 @@
+table 'DQ Checks'
+	lineageTag: 1809ada6-8750-5cf0-8781-a5e1e2c8841c
+
+	column 'Check ID'
+		dataType: string
+		lineageTag: f034d9e3-4f6f-55e9-8502-1f492e74129f
+		summarizeBy: none
+		sourceColumn: Check ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source
+		dataType: string
+		lineageTag: 1ee5f7cb-84ae-55b4-97eb-5a5be80b26fb
+		summarizeBy: none
+		sourceColumn: Source
+
+		annotation SummarizationSetBy = Automatic
+
+	column Severity
+		dataType: string
+		lineageTag: 5735435b-06a3-5d46-b888-d57f571973ca
+		summarizeBy: none
+		sourceColumn: Severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Handling
+		dataType: string
+		lineageTag: 80231772-4612-5e6c-aa50-00b02978cd48
+		summarizeBy: none
+		sourceColumn: Handling
+
+		annotation SummarizationSetBy = Automatic
+
+	column Description
+		dataType: string
+		lineageTag: 49ee4181-0395-5472-aed2-e4cd64191d9d
+		summarizeBy: none
+		sourceColumn: Description
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'DQ Checks' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "dq", Item = "checks"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"check_id", "source", "severity", "handling", "description"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"check_id", type text}, {"source", type text}, {"severity", type text}, {"handling", type text}, {"description", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"check_id", "Check ID"}, {"source", "Source"}, {"severity", "Severity"}, {"handling", "Handling"}, {"description", "Description"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table

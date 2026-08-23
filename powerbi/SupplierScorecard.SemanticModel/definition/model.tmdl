@@ -9,7 +9,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["PgServer","PgDatabase","Date","Supplier","Material","Plant","PO Lines","Goods Receipts","Inspection Lots","KPI Parameters","_Measures"]
+annotation PBI_QueryOrder = ["PgServer","PgDatabase","Date","Supplier","Material","Plant","PO Lines","Goods Receipts","Inspection Lots","KPI Parameters","DQ Checks","DQ Issues","_Measures"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -21,5 +21,7 @@ ref table 'PO Lines'
 ref table 'Goods Receipts'
 ref table 'Inspection Lots'
 ref table 'KPI Parameters'
+ref table 'DQ Checks'
+ref table 'DQ Issues'
 ref table '_Measures'
 

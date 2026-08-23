@@ -1,0 +1,58 @@
+table 'DQ Issues'
+	lineageTag: 6102c39b-7310-5827-9eb0-50e11524a04f
+
+	column 'Check ID'
+		dataType: string
+		isHidden
+		lineageTag: cc36f4ca-9a28-5b39-8470-96b7bc62e9c1
+		summarizeBy: none
+		sourceColumn: Check ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Source File'
+		dataType: string
+		lineageTag: a1130210-159e-5ab1-a4ee-48a7d91530be
+		summarizeBy: none
+		sourceColumn: Source File
+
+		annotation SummarizationSetBy = Automatic
+
+	column Row
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d0b8386-575c-541c-8fbc-b19478986a2b
+		summarizeBy: none
+		sourceColumn: Row
+
+		annotation SummarizationSetBy = Automatic
+
+	column Record
+		dataType: string
+		lineageTag: 1a6a5a90-2e44-52f7-abf0-9a251397786c
+		summarizeBy: none
+		sourceColumn: Record
+
+		annotation SummarizationSetBy = Automatic
+
+	column Detail
+		dataType: string
+		lineageTag: 4b862bea-8b8b-5612-b696-4a886c9ae5cf
+		summarizeBy: none
+		sourceColumn: Detail
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'DQ Issues' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase, [CreateNavigationProperties = false]),
+				    Data = Source{[Schema = "dq", Item = "issues"]}[Data],
+				    #"Selected Columns" = Table.SelectColumns(Data, {"check_id", "source_file", "row_num", "record_key", "detail"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Selected Columns", {{"check_id", type text}, {"source_file", type text}, {"row_num", Int64.Type}, {"record_key", type text}, {"detail", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {{"check_id", "Check ID"}, {"source_file", "Source File"}, {"row_num", "Row"}, {"record_key", "Record"}, {"detail", "Detail"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
