@@ -304,9 +304,12 @@ def add_pivots(path: Path) -> None:
             slicer_cache = wb.SlicerCaches.Add2(pivots[0], field)
             for other in pivots[1:]:
                 slicer_cache.PivotTables.AddPivotTable(other)
-            slicer_cache.Slicers.Add(by_supplier, Name=f"sl{field.replace(' ', '')}", Caption=field,
-                                     Top=by_supplier.Range("I4").Top + (position // 2) * 150,
-                                     Left=left + (position % 2) * 160, Width=150, Height=140)
+            slicer = slicer_cache.Slicers.Add(by_supplier)
+            # set the layout as properties: the optional arguments of Add are ignored through late binding
+            slicer.Caption = field
+            slicer.Width, slicer.Height = 150, 140
+            slicer.Left = left + (position % 2) * 160
+            slicer.Top = by_supplier.Range("I4").Top + (position // 2) * 150
 
         chart_shape = by_month.Shapes.AddChart2(-1, XL_LINE_MARKERS, by_month.Range("G4").Left,
                                                 by_month.Range("G4").Top, 560, 300)
