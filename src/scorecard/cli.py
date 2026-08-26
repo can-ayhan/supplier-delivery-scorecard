@@ -50,6 +50,16 @@ def cmd_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_excel(args: argparse.Namespace) -> int:
+    from scorecard.db import connect
+    from scorecard.excel import build_workbook
+
+    with connect() as conn:
+        path = build_workbook(conn, args.out, pivots=not args.no_pivots)
+    print(f"workbook written to {path}")
+    return 0
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     """Load, build and validate in one go."""
     for step in (cmd_load, cmd_build, cmd_validate):
@@ -77,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("validate", help="show what the data quality checks found")
     p.add_argument("--export", type=Path, help="also write every finding to this CSV")
     p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("excel", help="build the pivot workbook from the marts")
+    p.add_argument("--out", type=Path, default=Path("excel/supplier_scorecard.xlsx"))
+    p.add_argument("--no-pivots", action="store_true", help="skip the Excel step (no Windows / Excel needed)")
+    p.set_defaults(func=cmd_excel)
 
     p = sub.add_parser("run", help="load + build + validate")
     p.add_argument("--raw", type=Path, default=RAW_DIR)
