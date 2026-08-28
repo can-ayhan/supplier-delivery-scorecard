@@ -13,6 +13,11 @@ def connect() -> psycopg.Connection:
     return psycopg.connect(get_settings().conninfo)
 
 
+def connect_reader() -> psycopg.Connection:
+    """Connection for the assistant: can only read the mart schema."""
+    return psycopg.connect(get_settings().reader_conninfo)
+
+
 def run_sql_file(conn: psycopg.Connection, name: str) -> None:
     """Run one of the numbered scripts in sql/ as a single batch."""
     path = Path(name) if Path(name).is_absolute() else SQL_DIR / name

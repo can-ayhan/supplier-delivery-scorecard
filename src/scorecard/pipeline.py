@@ -12,6 +12,7 @@ BUILD_SCRIPTS = [
     "04_star_schema.sql",
     "05_load_marts.sql",
     "06_reporting_views.sql",
+    "07_assistant_role.sql",
 ]
 
 MART_TABLES = [

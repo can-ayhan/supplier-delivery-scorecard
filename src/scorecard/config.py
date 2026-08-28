@@ -30,12 +30,21 @@ class Settings:
     database: str
     user: str
     password: str
+    reader_user: str        # read-only login used by the assistant
+    reader_password: str
 
     @property
     def conninfo(self) -> str:
         return (
             f"host={self.host} port={self.port} dbname={self.database} "
             f"user={self.user} password={self.password}"
+        )
+
+    @property
+    def reader_conninfo(self) -> str:
+        return (
+            f"host={self.host} port={self.port} dbname={self.database} "
+            f"user={self.reader_user} password={self.reader_password}"
         )
 
 
@@ -47,4 +56,6 @@ def get_settings() -> Settings:
         database=os.environ.get("PGDATABASE", "scorecard"),
         user=os.environ.get("PGUSER", "scorecard"),
         password=os.environ.get("PGPASSWORD", "scorecard"),
+        reader_user=os.environ.get("PGREADER_USER", "scorecard_reader"),
+        reader_password=os.environ.get("PGREADER_PASSWORD", "reader"),
     )
