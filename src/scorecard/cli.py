@@ -74,6 +74,15 @@ def cmd_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval(args: argparse.Namespace) -> int:
+    from scorecard.assistant.evaluate import evaluate, print_report
+    from scorecard.db import connect_reader
+
+    with connect_reader() as conn:
+        print_report(evaluate(conn))
+    return 0
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     """Load, build and validate in one go."""
     for step in (cmd_load, cmd_build, cmd_validate):
@@ -111,6 +120,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("question")
     p.add_argument("--show-sql", action="store_true", help="print the queries the assistant ran")
     p.set_defaults(func=cmd_ask)
+
+    p = sub.add_parser("eval", help="score the assistant against evals/questions.json")
+    p.set_defaults(func=cmd_eval)
 
     p = sub.add_parser("run", help="load + build + validate")
     p.add_argument("--raw", type=Path, default=RAW_DIR)

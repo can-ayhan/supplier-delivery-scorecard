@@ -16,6 +16,7 @@ import pytest
 pytest.importorskip("sqlglot")
 
 from scorecard.assistant import agent, tools  # noqa: E402
+from scorecard.assistant.evaluate import load_questions, same_result  # noqa: E402
 from scorecard.db import connect_reader  # noqa: E402
 
 
@@ -195,3 +196,19 @@ def test_describe_table_lists_status_values(reader):
     assert "On time in full" in status["values"]
     with pytest.raises(tools.ToolError):
         tools.describe_table(reader, "pg_roles")
+
+
+def test_every_reference_query_passes_the_guard_and_returns_rows(reader):
+    for question in load_questions():
+        result = tools.run_query(reader, question["sql"])
+        assert result["row_count"] >= 1, question["id"]
+
+
+def test_same_result_ignores_order_names_and_extra_columns():
+    expected = {"columns": ["supplier"], "rows": [["A"], ["B"]]}
+
+    assert same_result(expected, {"columns": ["otif", "name"], "rows": [[0.5, "B"], [0.9, "A"]]})
+    assert same_result({"columns": ["x"], "rows": [[0.7561]]}, {"columns": ["otif"], "rows": [[0.75610346]]})
+    assert not same_result(expected, {"columns": ["name"], "rows": [["A"], ["C"]]})
+    assert not same_result(expected, {"columns": ["name"], "rows": [["A"]]})
+    assert not same_result(expected, None)

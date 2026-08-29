@@ -1,0 +1,72 @@
+[
+  {
+    "id": "overall_otif",
+    "question": "What is the overall OTIF rate?",
+    "sql": "select round(sum(otif_lines)::numeric / sum(due_lines), 4) from v_delivery_lines"
+  },
+  {
+    "id": "best_otif_supplier",
+    "question": "Which supplier has the highest OTIF rate?",
+    "sql": "select supplier_name from v_supplier_scorecard order by otif_pct desc limit 1"
+  },
+  {
+    "id": "top3_defect_rate",
+    "question": "Which three suppliers have the highest defect rate?",
+    "sql": "select supplier_name from v_supplier_scorecard order by defect_rate desc nulls last limit 3"
+  },
+  {
+    "id": "late_lines_china",
+    "question": "How many due purchase order lines from suppliers in China were delivered late?",
+    "sql": "select count(*) from fact_po_line f join dim_supplier s using (supplier_key) where s.country_name = 'China' and f.is_due and f.days_late > 0"
+  },
+  {
+    "id": "lead_time_by_region",
+    "question": "What is the average lead time in days per supplier region?",
+    "sql": "select s.region, round(avg(f.lead_time_days), 1) from fact_po_line f join dim_supplier s using (supplier_key) where f.is_due group by s.region"
+  },
+  {
+    "id": "worst_month_2025",
+    "question": "Which due month in 2025 had the lowest OTIF rate?",
+    "sql": "select due_month from v_delivery_lines where due_year = 2025 group by due_month having sum(due_lines) > 0 order by sum(otif_lines)::numeric / sum(due_lines) limit 1"
+  },
+  {
+    "id": "rejected_lots_2026",
+    "question": "How many inspection lots created in 2026 were rejected completely?",
+    "sql": "select count(*) from fact_inspection i join dim_date d on d.date_key = i.lot_date_key where d.year = 2026 and i.is_rejected"
+  },
+  {
+    "id": "in_full_warsaw",
+    "question": "What share of due lines for the Warsaw Assembly plant was delivered in full?",
+    "sql": "select round(sum(in_full_lines)::numeric / sum(due_lines), 4) from v_delivery_lines where plant_name = 'Warsaw Assembly'"
+  },
+  {
+    "id": "top5_ranking",
+    "question": "List the five best ranked suppliers with their supplier score.",
+    "sql": "select supplier_name, supplier_score from v_supplier_scorecard order by supplier_rank limit 5"
+  },
+  {
+    "id": "fastener_order_value",
+    "question": "What is the total order value in EUR of due lines for fasteners?",
+    "sql": "select round(sum(order_value_eur), 2) from v_delivery_lines where material_group_name = 'Fasteners' and due_lines = 1"
+  },
+  {
+    "id": "never_delivered",
+    "question": "How many due lines have had nothing delivered at all?",
+    "sql": "select count(*) from fact_po_line where is_due and delivery_status = 'Not delivered'"
+  },
+  {
+    "id": "worst_material_group",
+    "question": "Which material group has the highest defect rate?",
+    "sql": "select m.material_group_name from fact_inspection i join dim_material m using (material_key) where i.is_decided group by m.material_group_name order by sum(i.rejected_qty) / sum(i.lot_qty) desc limit 1"
+  },
+  {
+    "id": "return_postings",
+    "question": "How many goods receipt postings were returns to the supplier?",
+    "sql": "select count(*) from fact_goods_receipt where movement_type = '122'"
+  },
+  {
+    "id": "suppliers_below_target",
+    "question": "How many suppliers are below the OTIF target?",
+    "sql": "select count(*) from v_supplier_scorecard s cross join kpi_params k where s.otif_pct < k.otif_target"
+  }
+]
