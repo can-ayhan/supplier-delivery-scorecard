@@ -12,6 +12,10 @@ REFERENCE_DIR = ROOT / "data" / "reference"
 SQL_DIR = ROOT / "sql"
 
 
+class ConfigError(RuntimeError):
+    """A required setting is missing. The message says which one."""
+
+
 def _load_dotenv(path: Path) -> None:
     if not path.exists():
         return
@@ -32,6 +36,7 @@ class Settings:
     password: str
     reader_user: str        # read-only login used by the assistant
     reader_password: str
+    assistant_model: str    # which Groq model answers; no default, it is a deployment choice
 
     @property
     def conninfo(self) -> str:
@@ -58,4 +63,5 @@ def get_settings() -> Settings:
         password=os.environ.get("PGPASSWORD", "scorecard"),
         reader_user=os.environ.get("PGREADER_USER", "scorecard_reader"),
         reader_password=os.environ.get("PGREADER_PASSWORD", "reader"),
+        assistant_model=os.environ.get("SCORECARD_MODEL", "").strip(),
     )

@@ -60,6 +60,20 @@ def cmd_excel(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ask(args: argparse.Namespace) -> int:
+    from scorecard.assistant.agent import ask
+    from scorecard.db import connect_reader
+
+    with connect_reader() as conn:
+        answer = ask(args.question, conn)
+    print(answer.text)
+    if args.show_sql:
+        for query in answer.queries:
+            print(f"-- {query['row_count']} rows")
+            print(query["sql"])
+    return 0
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     """Load, build and validate in one go."""
     for step in (cmd_load, cmd_build, cmd_validate):
@@ -93,6 +107,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-pivots", action="store_true", help="skip the Excel step (no Windows / Excel needed)")
     p.set_defaults(func=cmd_excel)
 
+    p = sub.add_parser("ask", help="ask the text-to-SQL assistant a question (needs a free Groq API key)")
+    p.add_argument("question")
+    p.add_argument("--show-sql", action="store_true", help="print the queries the assistant ran")
+    p.set_defaults(func=cmd_ask)
+
     p = sub.add_parser("run", help="load + build + validate")
     p.add_argument("--raw", type=Path, default=RAW_DIR)
     p.add_argument("--export", type=Path)
@@ -102,9 +121,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    from scorecard.config import ConfigError
+
     parser = build_parser()
     args = parser.parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except ConfigError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
