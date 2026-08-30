@@ -4,7 +4,7 @@ Supplier performance report built from three SAP-style exports: purchase orders,
 
 ![Scorecard page](docs/scorecard.png)
 
-The exports are consolidated and validated in PostgreSQL, modelled as a star schema, and reported in Power BI.
+The exports are consolidated and validated in PostgreSQL, modelled as a star schema, and reported in Power BI, with an Excel pivot workbook over the same data for ad hoc questions. A text-to-SQL assistant answers questions about the model in plain language.
 
 The data is synthetic. A generator writes exports that look and misbehave like the real thing, so no company data is in this repository.
 
@@ -18,6 +18,8 @@ flowchart LR
     S[staging<br/>raw text, then typed] --> V[validation<br/>dq.issues]
     V --> M[mart<br/>star schema]
     M --> P[Power BI report]
+    M --> X[Excel pivot workbook]
+    M --> Q[text-to-SQL assistant]
 ```
 
 | Step | Where | What happens |
@@ -26,7 +28,7 @@ flowchart LR
 | Clean | `sql/02` | SAP formatting is undone: `31.07.2026` and `20260731` dates, `1.250,000` numbers, trailing minus, zero-padded keys |
 | Validate | `sql/03` | 15 checks. Errors are left out of the marts, warnings are kept and listed |
 | Model | `sql/04`, `sql/05` | Three facts and four shared dimensions, on-time and in-full derived per PO line |
-| Report | `sql/06`, `powerbi/` | KPI views in SQL, the same KPIs as DAX measures |
+| Report | `sql/06`, `powerbi/`, `excel/` | KPI views in SQL, the same KPIs as DAX measures, pivots over the PO line data |
 
 ## The exports
 
@@ -100,7 +102,7 @@ erDiagram
 - **Defect rate**: blocked plus returned quantity over inspected quantity, for lots with a usage decision. Returns to the supplier (122) count as a quality outcome, not as a short delivery.
 - **Supplier score**: 50 % delivery (OTIF), 20 % lead time against plan, 30 % quality, each on a 0 to 100 scale. A component without data is left out and the other weights are rescaled.
 
-Tolerances, weights and the OTIF target live in one table, `mart.kpi_params`, which both SQL and Power BI read.
+Tolerances, weights and the OTIF target live in one table, `mart.kpi_params`, which SQL, Power BI and Excel all read.
 
 On the committed data: OTIF 75.6 %, on time 77.6 %, in full 96.8 %, average lead time 21.4 days, defect rate 1.06 %.
 
@@ -123,19 +125,58 @@ The fourth page lists the validation checks and their findings:
 
 To open it: start the database and run the pipeline (below), open the `.pbip` file in Power BI Desktop, choose Refresh, and sign in to the database with the user and password from `.env`.
 
+## Excel workbook
+
+`excel/supplier_scorecard.xlsx` is built by `python -m scorecard excel`:
+
+- **Scorecard**: the ranked suppliers, same numbers as the report
+- **By supplier**, **By month**, **By material group**: pivot tables over one row per PO line, with slicers for region, material group, plant and year connected to all three
+- **Data**: the PO lines as an Excel table, the source of the pivots
+
+OTIF, on-time and in-full are calculated fields (sum of flags over sum of due lines), so they stay correct at any level of the pivot instead of averaging percentages.
+
+![Pivot by supplier](docs/excel_by_supplier.png)
+
+The pivot step drives Excel through COM and needs Windows with Excel. `--no-pivots` writes the workbook without it.
+
+## Text-to-SQL assistant
+
+`python -m scorecard ask "Which three suppliers have the highest defect rate?" --show-sql`
+
+The assistant turns a question into SQL over the mart schema and answers from the result. It runs on an open model through the Groq API, whose free tier is enough, with three tools: list the tables, describe one, run a query. It has to look at the schema before it writes SQL.
+
+Guardrails, in two layers:
+
+1. **In code** (`src/scorecard/assistant/guard.py`): the SQL is parsed, and only a single `SELECT` on the allow-listed mart tables gets through. Writes, including ones hidden in a CTE, `SELECT INTO`, locking, other schemas, system catalogs and server-side functions are rejected. A row limit is added or lowered.
+2. **In the database** (`sql/07_assistant_role.sql`): the query runs as a role that can only read the mart schema, in a read-only transaction with a five second timeout.
+
+`python -m scorecard eval` scores the assistant against `evals/questions.json`: 14 questions, each with a reference query. A question passes when the assistant's result contains the reference result, compared as values so any correct SQL counts. A rate is accepted as a fraction or as a percentage.
+
+Last full runs on Groq's free tier:
+
+| Model | Result | Missed |
+|---|---|---|
+| `openai/gpt-oss-120b` | 13 of 14 | Average lead time divided by all due lines instead of the delivered ones. The prompt now spells out the definition. |
+| `openai/gpt-oss-20b` | 13 of 14 | Returned a list of material group codes where one group name was asked for. |
+
+The first run scored 11 of 14. What it showed went into the table notes, the prompt and the scoring. A full run takes about nine minutes and close to half of a model's daily free token allowance, so `--only <ids>` reruns single questions, and a run that hits the limit reports what it skipped.
+
+Both commands need a free Groq API key in `GROQ_API_KEY` and the model to use in `SCORECARD_MODEL` (see `.env.example`). The tests need neither: they drive the tool loop with a scripted stand-in for the model.
+
 ## Run it
 
-Requirements: Python 3.11+, Docker. Power BI Desktop for the report.
+Requirements: Python 3.11+, Docker. Power BI Desktop and Excel for the two report files.
 
 ```bash
 docker compose up -d                      # PostgreSQL on port 5433
 python -m venv .venv
 .venv/Scripts/activate                    # source .venv/bin/activate on Linux and macOS
-pip install -e ".[dev]"
+pip install -e ".[excel,assistant,dev]"
 cp .env.example .env
 
 python -m scorecard run                   # load, build and validate
-pytest                                    # needs the database
+python -m scorecard excel                 # rebuild the workbook
+pytest                                    # 96 tests
 ```
 
 `python -m scorecard generate` rewrites the exports. With the default seed it reproduces the committed files byte for byte.
@@ -146,11 +187,9 @@ pytest                                    # needs the database
 data/raw/          the three exports and the list of planted issues
 data/reference/    plant, material group and country names
 sql/               numbered scripts: staging, validation, star schema, views
-src/scorecard/     generator, loader, pipeline
+src/scorecard/     generator, loader, pipeline, Excel builder, assistant
 powerbi/           Power BI Project: semantic model and report
+excel/             the built workbook
+evals/             question set for the assistant
 tests/             pytest suite, runs against the docker-compose database
 ```
-
-## Next
-
-- Excel workbook with pivot tables over the same model, for questions the report does not answer
