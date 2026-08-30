@@ -78,8 +78,9 @@ def cmd_eval(args: argparse.Namespace) -> int:
     from scorecard.assistant.evaluate import evaluate, print_report
     from scorecard.db import connect_reader
 
+    only = set(args.only.split(",")) if args.only else None
     with connect_reader() as conn:
-        print_report(evaluate(conn))
+        print_report(evaluate(conn, only=only))
     return 0
 
 
@@ -122,6 +123,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_ask)
 
     p = sub.add_parser("eval", help="score the assistant against evals/questions.json")
+    p.add_argument("--only", help="comma separated question ids, to rerun a few")
     p.set_defaults(func=cmd_eval)
 
     p = sub.add_parser("run", help="load + build + validate")
@@ -145,6 +147,13 @@ def main(argv: list[str] | None = None) -> int:
     except ConfigError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
+    except Exception as exc:
+        if getattr(exc, "status_code", None) != 429:
+            raise
+        from scorecard.assistant.agent import api_message
+
+        print(f"error: rate limit reached. {api_message(exc)}", file=sys.stderr)
+        return 3
 
 
 if __name__ == "__main__":

@@ -204,11 +204,48 @@ def test_every_reference_query_passes_the_guard_and_returns_rows(reader):
         assert result["row_count"] >= 1, question["id"]
 
 
+def test_evaluation_stops_cleanly_at_the_rate_limit(reader):
+    from scorecard.assistant.evaluate import evaluate
+
+    class RateLimited(Exception):
+        status_code = 429
+        body = {"error": {"code": "rate_limit_exceeded", "message": "Rate limit reached on tokens per day"}}
+
+    questions = load_questions()[:3]
+    client = FakeClient(
+        calls(call("run_query", "t1", sql=questions[0]["sql"])), text("done"),
+        RateLimited("429"),
+    )
+
+    results = evaluate(reader, client=client, questions=questions)
+
+    assert [(r.passed, r.skipped) for r in results] == [(True, False), (False, True), (False, True)]
+    assert results[-1].note == "Rate limit reached on tokens per day"
+    assert len(client.requests) == 3                      # the third question was not sent at all
+
+
 def test_same_result_ignores_order_names_and_extra_columns():
     expected = {"columns": ["supplier"], "rows": [["A"], ["B"]]}
 
-    assert same_result(expected, {"columns": ["otif", "name"], "rows": [[0.5, "B"], [0.9, "A"]]})
+    assert same_result(expected, {"columns": ["otif", "name"], "rows": [[0.5, "B"], [0.9, "a "]]})
     assert same_result({"columns": ["x"], "rows": [[0.7561]]}, {"columns": ["otif"], "rows": [[0.75610346]]})
     assert not same_result(expected, {"columns": ["name"], "rows": [["A"], ["C"]]})
     assert not same_result(expected, {"columns": ["name"], "rows": [["A"]]})
     assert not same_result(expected, None)
+
+
+def test_a_rate_is_the_same_answer_as_a_fraction_or_a_percentage():
+    rate = {"columns": ["otif"], "rows": [[0.7561]]}
+
+    assert same_result(rate, {"columns": ["pct"], "rows": [[75.61]]})
+    assert same_result(rate, {"columns": ["pct"], "rows": [[75.6]]})          # rounded to one decimal
+    assert not same_result(rate, {"columns": ["pct"], "rows": [[75.0]]})
+    assert not same_result(rate, {"columns": ["otif"], "rows": [[0.79]]})
+
+
+def test_counts_and_amounts_have_to_match():
+    assert same_result({"columns": ["n"], "rows": [[143]]}, {"columns": ["late"], "rows": [[143]]})
+    assert not same_result({"columns": ["n"], "rows": [[143]]}, {"columns": ["late"], "rows": [[144]]})
+    assert same_result({"columns": ["eur"], "rows": [[5854136.45]]}, {"columns": ["eur"], "rows": [[5854136]]})
+    assert not same_result({"columns": ["eur"], "rows": [[5854136.45]]}, {"columns": ["eur"], "rows": [[5900000]]})
+    assert not same_result({"columns": ["n"], "rows": [[143]]}, {"columns": ["name"], "rows": [["143"]]})

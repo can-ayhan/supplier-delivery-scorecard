@@ -12,7 +12,7 @@ from scorecard.assistant.guard import ALLOWED_TABLES, MAX_ROWS, SCHEMA, QueryRej
 TABLE_NOTES = {
     "v_supplier_scorecard": "One row per supplier with the finished KPIs, scores and rank over the whole period. Start here for supplier comparisons.",
     "v_delivery_lines": "One row per PO line, already joined to supplier, material, plant and dates. Flags are 0/1 (due_lines, on_time_lines, in_full_lines, otif_lines) so rates are sum(flag) / sum(due_lines).",
-    "v_supplier_month": "Supplier by month: delivery KPIs by due month, defect rate by inspection month.",
+    "v_supplier_month": "One row per supplier AND month (delivery KPIs by due month, defect rate by inspection month). For a figure per month across suppliers, sum the counts over the suppliers first; do not pick a row.",
     "fact_po_line": "One row per purchase order line with ordered and received quantity, lead time, days late and the is_due / is_on_time / is_in_full / is_otif flags.",
     "fact_goods_receipt": "One row per material document line. movement_type 101 = receipt, 102 = reversal, 122 = return to supplier. Quantity is signed.",
     "fact_inspection": "One row per inspection lot: lot, accepted and rejected quantity, usage decision.",

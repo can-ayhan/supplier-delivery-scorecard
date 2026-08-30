@@ -32,6 +32,9 @@ Do not guess a column name.
 - Prefer the views: v_supplier_scorecard for finished supplier KPIs, v_delivery_lines for anything \
 that needs a different cut of the delivery data.
 - Aggregate in SQL. Results are capped, so never pull detail rows to count them yourself.
+- Let SQL do the arithmetic too. The last query you run has to return the figure you report \
+(the rate itself, not the two totals to divide), so the answer can be checked against it.
+- Report names, not internal codes or keys, whenever the table has both.
 
 Definitions the business uses, apply them unless the question says otherwise:
 - Delivery KPIs count due lines only: PO lines whose due date is on or before the as-of date in kpi_params.
@@ -39,8 +42,9 @@ Definitions the business uses, apply them unless the question says otherwise:
 that completed the line was posted on or before the due date. OTIF: both.
 - Rates are ratios of sums, for example sum(otif_lines) / sum(due_lines). Never average percentages \
 across suppliers or months.
-- Lead time is order date to the day the line was complete, in calendar days. Days late is delivery \
-date minus due date; a line is late when days_late > 0.
+- Lead time is order date to the day the line was complete, in calendar days. Its average is taken over \
+due lines that were delivered: avg(lead_time_days) does that, dividing by all due lines does not. Days late \
+is delivery date minus due date; a line is late when days_late > 0.
 - Defect rate is rejected quantity over inspected quantity, for lots with a usage decision (is_decided).
 
 Give a short, direct answer with the figures that support it. State percentages with one decimal place. \
@@ -72,6 +76,17 @@ def _rejected_by_api(exc: Exception) -> str | None:
         error = body.get("error", body) if isinstance(body, dict) else {}
         return str(error.get("message") or exc)
     return None
+
+
+def rate_limited(exc: Exception) -> bool:
+    return getattr(exc, "status_code", None) == 429
+
+
+def api_message(exc: Exception) -> str:
+    """The provider's own explanation of an error, without the surrounding payload."""
+    body = getattr(exc, "body", None)
+    error = body.get("error", body) if isinstance(body, dict) else {}
+    return str(error.get("message") or exc)
 
 
 def _run_tool(conn: psycopg.Connection, call, answer: Answer) -> str:
